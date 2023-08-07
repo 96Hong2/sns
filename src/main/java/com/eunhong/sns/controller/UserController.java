@@ -1,4 +1,4 @@
-apackage com.eunhong.sns.controller;
+package com.eunhong.sns.controller;
 
 import com.eunhong.sns.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +17,6 @@ public class UserController {
     @PostMapping
     public void join() {
         // join
-        userService.join();
+        userService.join("","");
     }
 }
