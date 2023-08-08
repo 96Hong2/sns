@@ -18,12 +18,15 @@ public class UserService {
     // TODO : implement
     public User join(String userName, String password) {
         // 회원가입하려는 userName으로 회원가입된 user가 있는지 체크
-        Optional<UserEntity> userEntity = userEntityRepository.findByUserName(userName);
+        // 만약 user가 있다면 에러 throw
+        userEntityRepository.findByUserName(userName).ifPresent(it -> {
+            throw new SnsApplicationException();
+        });
 
         // 회원가입 진행 = user 등록
-        userEntityRepository.save(new UserEntity());
+        UserEntity userEntity = userEntityRepository.save(UserEntity.of(userName, password));
 
-        return new User();
+        return User.fromEntity(userEntity);
     }
 
     // TODO : implement
