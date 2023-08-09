@@ -2,9 +2,13 @@ package com.eunhong.sns.model;
 
 import com.eunhong.sns.model.entity.UserEntity;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.sql.Timestamp;
 
+@Getter
+@Setter
 @AllArgsConstructor
 public class User {
 
