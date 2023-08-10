@@ -1,8 +1,13 @@
 package com.eunhong.sns.controller;
 
+import com.eunhong.sns.controller.request.UserJoinRequest;
+import com.eunhong.sns.controller.response.Response;
+import com.eunhong.sns.controller.response.UserJoinResponse;
+import com.eunhong.sns.model.User;
 import com.eunhong.sns.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -14,9 +19,10 @@ public class UserController {
     private final UserService userService;
 
     // TODO : implement
-    @PostMapping
-    public void join() {
-        // join
-        userService.join("","");
+    @PostMapping("/join")
+    public Response<UserJoinResponse> join(@RequestBody UserJoinRequest request) {
+        // RequestBody로 받아온 값을 서비스에 넘김
+        User user = userService.join(request.getUserName(), request.getPassWord());
+        return Response.success(UserJoinResponse.fromUser(user));
     }
 }
