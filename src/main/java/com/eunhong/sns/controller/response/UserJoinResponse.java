@@ -4,8 +4,10 @@ import ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy;
 import com.eunhong.sns.model.User;
 import com.eunhong.sns.model.UserRole;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 @AllArgsConstructor
+@Getter
 public class UserJoinResponse {
     private Integer id;
     private String userName;

@@ -18,7 +18,6 @@ public class UserController {
 
     private final UserService userService;
 
-    // TODO : implement
     @PostMapping("/join")
     public Response<UserJoinResponse> join(@RequestBody UserJoinRequest request) {
         // RequestBody로 받아온 값을 서비스에 넘김
