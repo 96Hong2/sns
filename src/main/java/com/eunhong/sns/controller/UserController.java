@@ -15,13 +15,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/vi/users")
 @RequiredArgsConstructor // userService가 final로 선언되어있으므로 자동으로 생성자 만들어서 주입받을 수 있게 함
 public class UserController {
-
     private final UserService userService;
 
     @PostMapping("/join")
     public Response<UserJoinResponse> join(@RequestBody UserJoinRequest request) {
         // RequestBody로 받아온 값을 서비스에 넘김
-        User user = userService.join(request.getUserName(), request.getPassWord());
+        User user = userService.join(request.getUserName(), request.getPassword());
         return Response.success(UserJoinResponse.fromUser(user));
     }
 }

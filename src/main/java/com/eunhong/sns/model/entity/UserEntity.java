@@ -2,6 +2,7 @@ package com.eunhong.sns.model.entity;
 
 import com.eunhong.sns.model.UserRole;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
@@ -18,6 +19,7 @@ import java.time.Instant;
 // delete 요청이 들어왔을 때 아래 sql을 실행한다.
 @SQLDelete(sql = "UPDATE \"user\" SET deleted_at = NOW() where id=?")
 @Where(clause = "deleted_at is NULL")
+@NoArgsConstructor
 public class UserEntity {
 
     @Id
