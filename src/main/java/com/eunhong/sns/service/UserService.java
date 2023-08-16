@@ -8,6 +8,7 @@ import com.eunhong.sns.repository.UserEntityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -16,6 +17,7 @@ public class UserService {
     private final UserEntityRepository userEntityRepository;
     private final BCryptPasswordEncoder encoder;
 
+    @Transactional
     public User join(String userName, String password) {
         // 회원가입하려는 userName으로 회원가입된 user가 있는지 체크
         // 만약 user가 있다면 에러 throw
