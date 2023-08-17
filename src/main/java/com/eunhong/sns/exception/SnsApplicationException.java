@@ -5,10 +5,15 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class SnsApplicationException extends Exception{
+public class SnsApplicationException extends RuntimeException{
 
     private ErrorCode errorCode;
     private String message;
+
+    public SnsApplicationException(ErrorCode errorCode) { // 에러코드만 있는 경우 생성자
+        this.errorCode = errorCode;
+        this.message = null;
+    }
 
     @Override
     public String getMessage() {

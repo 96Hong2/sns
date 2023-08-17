@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Optional;
 
@@ -24,6 +25,9 @@ public class UserServiceTest {
     @MockBean
     private UserEntityRepository userEntityRepository;
 
+    @MockBean
+    private BCryptPasswordEncoder encoder;
+
     @Test
     void 회원가입이_정상적으로_동작하는_경우() {
         String userName = "userName";
@@ -34,6 +38,8 @@ public class UserServiceTest {
         // mocking
         // 해당 userName으로 회원가입한 적이 없기 때문에 findByUserName으로 찾으면 그 값이 없어야 한다.
         when(userEntityRepository.findByUserName(userName)).thenReturn(Optional.empty());
+        // encoding 된 password를 반환했을 때 아래 결과가 나오는지 확인
+        when(encoder.encode(password)).thenReturn("encrypt_password");
         // save하면 저장된 Entity를 반환해주는데, 이게 UserEntity의 모킹된 클래스인지 확인
         when(userEntityRepository.save(any())).thenReturn(Optional.of(fixture));
 
@@ -51,6 +57,7 @@ public class UserServiceTest {
         // mocking
         // findByUserName을 하면 이미 가입된 User의 UserEntity가 반환되어야 한다.
         when(userEntityRepository.findByUserName(userName)).thenReturn(Optional.of(fixture));
+        when(encoder.encode(password)).thenReturn("encrypt_password");
         when(userEntityRepository.save(any())).thenReturn(Optional.of(fixture));
 
         // 적절한 Exception을 반환하는지 검증

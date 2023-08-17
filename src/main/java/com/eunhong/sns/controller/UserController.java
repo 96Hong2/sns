@@ -1,8 +1,10 @@
 package com.eunhong.sns.controller;
 
 import com.eunhong.sns.controller.request.UserJoinRequest;
+import com.eunhong.sns.controller.request.UserLoginRequest;
 import com.eunhong.sns.controller.response.Response;
 import com.eunhong.sns.controller.response.UserJoinResponse;
+import com.eunhong.sns.controller.response.UserLoginResponse;
 import com.eunhong.sns.model.User;
 import com.eunhong.sns.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -22,5 +24,11 @@ public class UserController {
         // RequestBody로 받아온 값을 서비스에 넘김
         User user = userService.join(request.getUserName(), request.getPassword());
         return Response.success(UserJoinResponse.fromUser(user));
+    }
+
+    @PostMapping("/login")
+    public Response<UserLoginResponse> login(@RequestBody UserLoginRequest request) {
+        String token = userService.login(request.getUserName(), request.getPassword());
+        return Response.success(new UserLoginResponse(token));
     }
 }

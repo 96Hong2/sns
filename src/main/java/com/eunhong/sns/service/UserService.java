@@ -22,11 +22,7 @@ public class UserService {
         // 회원가입하려는 userName으로 회원가입된 user가 있는지 체크
         // 만약 user가 있다면 에러 throw
         userEntityRepository.findByUserName(userName).ifPresent(it -> {
-            try {
-                throw new SnsApplicationException(ErrorCode.DUPLICATED_USER_NAME, String.format("%s is duplicated", userName));
-            } catch (SnsApplicationException e) {
-                throw new RuntimeException(e);
-            }
+            throw new SnsApplicationException(ErrorCode.DUPLICATED_USER_NAME, String.format("%s is duplicated", userName));
         });
 
         // 회원가입 진행 = user 등록
@@ -38,12 +34,13 @@ public class UserService {
     // jwt는 문자열 암호화 인가 방식, 로그인에 사용할 암호화된 문자열 반환
     // 로그인 성공 시 토큰 반환
     public String login(String userName, String password) throws SnsApplicationException { // 이거 throws부분은 추가함
-        // 회원가입 여부 체크
-        UserEntity userEntity = userEntityRepository.findByUserName(userName).orElseThrow(() -> new SnsApplicationException(ErrorCode.DUPLICATED_USER_NAME, ""));
+        // 회원가입 여부 체크 (가입된 유저가 없다면, Throw Error)
+        UserEntity userEntity = userEntityRepository.findByUserName(userName).orElseThrow(() -> new SnsApplicationException(ErrorCode.USER_NOT_FOUND, String.format("%s not founded", userName)));
 
         // 비밀번호 체크
-        if(userEntity.getPassword().equals(password)){
-            throw new SnsApplicationException(ErrorCode.DUPLICATED_USER_NAME, "");
+        if(!encoder.matches(password, userEntity.getPassword())){
+        // if(userEntity.getPassword().equals(password)){
+            throw new SnsApplicationException(ErrorCode.INVALID_PASSWORD);
         }
 
         // 토큰 생성
