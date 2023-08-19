@@ -16,3 +16,7 @@ spring:
     init:
       platform: postgres
       mode: always
+
+jwt:
+  secret-key: eunhong.sns-application-2023-08.secret_key # 256비트보다 커야함
+  token.expired-time-ms : 2592000000 # 30 days

@@ -5,7 +5,9 @@ import com.eunhong.sns.exception.SnsApplicationException;
 import com.eunhong.sns.model.User;
 import com.eunhong.sns.model.entity.UserEntity;
 import com.eunhong.sns.repository.UserEntityRepository;
+import com.eunhong.sns.util.JwtTokenUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +18,13 @@ public class UserService {
 
     private final UserEntityRepository userEntityRepository;
     private final BCryptPasswordEncoder encoder;
+
+    // configuration(application.yaml)에서 값을 받아옴
+    @Value("${jwt.secret-key}")
+    private String secretKey;
+
+    @Value("${jwt.token.expired-time-ms}")
+    private Long expiredTimeMs;
 
     @Transactional
     public User join(String userName, String password) {
@@ -30,7 +39,6 @@ public class UserService {
         return User.fromEntity(userEntity);
     }
 
-    // TODO : implement
     // jwt는 문자열 암호화 인가 방식, 로그인에 사용할 암호화된 문자열 반환
     // 로그인 성공 시 토큰 반환
     public String login(String userName, String password) throws SnsApplicationException { // 이거 throws부분은 추가함
@@ -44,7 +52,8 @@ public class UserService {
         }
 
         // 토큰 생성
+        String token = JwtTokenUtils.generateToken(userName, secretKey, expiredTimeMs);
 
-        return "";
+        return token;
     }
 }
