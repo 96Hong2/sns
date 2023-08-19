@@ -1,5 +1,6 @@
 package com.eunhong.sns.service;
 
+import com.eunhong.sns.exception.ErrorCode;
 import com.eunhong.sns.exception.SnsApplicationException;
 import com.eunhong.sns.fixture.UserEntityFixture;
 import com.eunhong.sns.model.entity.UserEntity;
@@ -41,7 +42,7 @@ public class UserServiceTest {
         // encoding 된 password를 반환했을 때 아래 결과가 나오는지 확인
         when(encoder.encode(password)).thenReturn("encrypt_password");
         // save하면 저장된 Entity를 반환해주는데, 이게 UserEntity의 모킹된 클래스인지 확인
-        when(userEntityRepository.save(any())).thenReturn(Optional.of(fixture));
+        when(userEntityRepository.save(any())).thenReturn(UserEntityFixture.get(userName, password));
 
         // 아무 에러도 throw하지 않는지 검증
         Assertions.assertDoesNotThrow(() -> userService.join(userName, password));
@@ -61,7 +62,8 @@ public class UserServiceTest {
         when(userEntityRepository.save(any())).thenReturn(Optional.of(fixture));
 
         // 적절한 Exception을 반환하는지 검증
-        Assertions.assertThrows(SnsApplicationException.class, () -> userService.join(userName, password));
+        SnsApplicationException e = Assertions.assertThrows(SnsApplicationException.class, () -> userService.join(userName, password));
+        Assertions.assertEquals(ErrorCode.DUPLICATED_USER_NAME, e.getErrorCode());
     }
 
     @Test
@@ -73,6 +75,7 @@ public class UserServiceTest {
 
         // mocking
         when(userEntityRepository.findByUserName(userName)).thenReturn(Optional.of(fixture));
+        when(encoder.matches(password, fixture.getPassword())).thenReturn(true);
         // 아무 에러도 throw하지 않는지 검증
         Assertions.assertDoesNotThrow(() -> userService.login(userName, password));
     }
@@ -88,7 +91,8 @@ public class UserServiceTest {
         when(userEntityRepository.findByUserName(userName)).thenReturn(Optional.empty());
 
         // 적절한 Exception을 반환하는지 검증
-        Assertions.assertThrows(SnsApplicationException.class, () -> userService.login(userName, password));
+        SnsApplicationException e = Assertions.assertThrows(SnsApplicationException.class, () -> userService.login(userName, password));
+        Assertions.assertEquals(ErrorCode.USER_NOT_FOUND, e.getErrorCode());
     }
 
     @Test
@@ -103,6 +107,7 @@ public class UserServiceTest {
         when(userEntityRepository.findByUserName(userName)).thenReturn(Optional.of(fixture));
 
         // 적절한 Exception을 반환하는지 검증
-        Assertions.assertThrows(SnsApplicationException.class, () -> userService.login(userName, wrongPassword));
+        SnsApplicationException e = Assertions.assertThrows(SnsApplicationException.class, () -> userService.login(userName, wrongPassword));
+        Assertions.assertEquals(ErrorCode.INVALID_PASSWORD, e.getErrorCode());
     }
 }
