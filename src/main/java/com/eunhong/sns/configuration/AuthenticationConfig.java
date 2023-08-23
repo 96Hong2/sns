@@ -1,14 +1,24 @@
 package com.eunhong.sns.configuration;
 
+import com.eunhong.sns.configuration.filter.JwtTokenFilter;
+import com.eunhong.sns.service.UserService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class AuthenticationConfig extends WebSecurityConfigurerAdapter {
+
+    private final UserService userService;
+    @Value("{jwt.scret-key}")
+    private String key;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -21,6 +31,8 @@ public class AuthenticationConfig extends WebSecurityConfigurerAdapter {
                 // 세션은 따로 관리 안하는 방향
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .addFilterBefore(new JwtTokenFilter(), UsernamePasswordAuthenticationFilter.class)
         ;
         // TODO
         // 시큐리티에서 어떤 exception 받았을 때 어떤 EntryPoint로 가게 설정하는 것, 일단 나중에 구현
