@@ -58,4 +58,12 @@ public class PostEntity {
         this.updatedAt = Timestamp.from(Instant.now());
     }
 
+    // PostEntity를 반환하는 메서드 of 생성
+    public static PostEntity of(String title, String body, UserEntity userEntity) {
+        PostEntity entity = new PostEntity();
+        entity.setTitle(title);
+        entity.setBody(body);
+        entity.setUser(userEntity);
+        return entity;
+    }
 }
