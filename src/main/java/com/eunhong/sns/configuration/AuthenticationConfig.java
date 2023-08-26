@@ -17,7 +17,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class AuthenticationConfig extends WebSecurityConfigurerAdapter {
 
     private final UserService userService;
-    @Value("{jwt.scret-key}")
+    @Value("${jwt.secret-key}")
     private String key;
 
     @Override
@@ -32,7 +32,7 @@ public class AuthenticationConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .addFilterBefore(new JwtTokenFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtTokenFilter(key, userService), UsernamePasswordAuthenticationFilter.class)
         ;
         // TODO
         // 시큐리티에서 어떤 exception 받았을 때 어떤 EntryPoint로 가게 설정하는 것, 일단 나중에 구현

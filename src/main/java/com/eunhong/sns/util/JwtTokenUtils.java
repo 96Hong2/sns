@@ -11,6 +11,23 @@ import java.util.Date;
 
 public class JwtTokenUtils {
 
+    // userName을 토큰에서 가져옴
+    public static String getUserName(String token, String key) {
+        return extractClaims(token, key).get("userName", String.class);
+    }
+
+    // 토큰이 만료되었는지 체크
+    public static boolean isExpired(String token, String key) {
+        Date expiredDate = extractClaims(token, key).getExpiration();
+        return expiredDate.before(new Date()); // 만료일자가 현재보다 이전인지(지났는지)
+    }
+
+    // 토큰에서 클레임즈를 파싱해서 가져오는 메소드
+    private static Claims extractClaims(String token, String key){
+        return Jwts.parserBuilder().setSigningKey(getKey(key))
+                .build().parseClaimsJws(token).getBody();
+    }
+
     public static String generateToken(String userName, String key, long expiredTimeMs) {
         Claims claims = Jwts.claims();
         claims.put("userName", userName);
@@ -24,7 +41,7 @@ public class JwtTokenUtils {
     }
 
     // 토큰 키 값을 구하는 메서드
-    private static Key getKey(String key) {
+    public static Key getKey(String key) {
         byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);
     }

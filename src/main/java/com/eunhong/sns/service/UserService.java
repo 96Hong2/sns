@@ -26,6 +26,13 @@ public class UserService {
     @Value("${jwt.token.expired-time-ms}")
     private Long expiredTimeMs;
 
+    public User loadUserByUserName(String userName) {
+        // findByUserName으로 찾은 UserEntity객체를 User 객체로 반환해야 함
+        // User클래스의 메서드 fromEntity의 파라미터로 적용하기 위해 map(User::fromEntity) 사용
+        return userEntityRepository.findByUserName(userName).map(User::fromEntity).orElseThrow(() ->
+                new SnsApplicationException(ErrorCode.USER_NOT_FOUND, String.format("%s is not founded.", userName)));
+    }
+
     @Transactional
     public User join(String userName, String password) {
         // 회원가입하려는 userName으로 회원가입된 user가 있는지 체크
