@@ -35,7 +35,7 @@ public class UserEntity {
     // 유저 권한
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
-    private UserRole role;
+    private UserRole role = UserRole.USER;
 
     // 등록 시각
     @Column(name = "registered_at")

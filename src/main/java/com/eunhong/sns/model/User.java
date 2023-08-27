@@ -40,6 +40,10 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        if(this.getUserRole() == null)
+        {
+            this.setUserRole(UserRole.USER);
+        }
         return List.of(new SimpleGrantedAuthority(this.getUserRole().toString()));
     }
 
