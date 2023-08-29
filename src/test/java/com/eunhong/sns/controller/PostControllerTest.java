@@ -2,11 +2,13 @@ package com.eunhong.sns.controller;
 
 import com.eunhong.sns.controller.request.PostCreateRequest;
 import com.eunhong.sns.controller.request.UserJoinRequest;
+import com.eunhong.sns.service.PostService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -24,6 +26,9 @@ public class PostControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @MockBean
+    private PostService postService;
 
     @Test
     @WithMockUser // 포스트 작성 시 인증된 유저가 작성한 것을 표현

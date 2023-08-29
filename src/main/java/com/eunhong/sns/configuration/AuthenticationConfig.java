@@ -1,6 +1,7 @@
 package com.eunhong.sns.configuration;
 
 import com.eunhong.sns.configuration.filter.JwtTokenFilter;
+import com.eunhong.sns.exception.CustomAuthenticationEntryPoint;
 import com.eunhong.sns.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,11 +34,10 @@ public class AuthenticationConfig extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .addFilterBefore(new JwtTokenFilter(key, userService), UsernamePasswordAuthenticationFilter.class)
+                // 시큐리티에서 어떤 exception 받았을 때 어떤 EntryPoint로 가게 설정하는 것
+                .exceptionHandling()
+                .authenticationEntryPoint(new CustomAuthenticationEntryPoint())
         ;
-        // TODO
-        // 시큐리티에서 어떤 exception 받았을 때 어떤 EntryPoint로 가게 설정하는 것, 일단 나중에 구현
-        // .exceptionHandling()
-        // .authenticationEntryPoint()
 
         super.configure(http);
     }

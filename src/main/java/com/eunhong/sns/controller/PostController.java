@@ -20,6 +20,6 @@ public class PostController {
     @PostMapping
     public Response<Void> create(@RequestBody PostCreateRequest request, Authentication authentication) {
         postService.create(request.getTitle(), request.getBody(), authentication.getName()); // authentication의 Principal에서 name을 가져옴
-        return Response.success(null);
+        return Response.success();
     }
 }
