@@ -34,7 +34,7 @@ public class UserServiceTest {
         String userName = "userName";
         String password = "password";
 
-        UserEntity fixture = UserEntityFixture.get(userName, password);
+        UserEntity fixture = UserEntityFixture.get(userName, password, 1);
 
         // mocking
         // 해당 userName으로 회원가입한 적이 없기 때문에 findByUserName으로 찾으면 그 값이 없어야 한다.
@@ -42,7 +42,7 @@ public class UserServiceTest {
         // encoding 된 password를 반환했을 때 아래 결과가 나오는지 확인
         when(encoder.encode(password)).thenReturn("encrypt_password");
         // save하면 저장된 Entity를 반환해주는데, 이게 UserEntity의 모킹된 클래스인지 확인
-        when(userEntityRepository.save(any())).thenReturn(UserEntityFixture.get(userName, password));
+        when(userEntityRepository.save(any())).thenReturn(UserEntityFixture.get(userName, password, 1));
 
         // 아무 에러도 throw하지 않는지 검증
         Assertions.assertDoesNotThrow(() -> userService.join(userName, password));
@@ -53,7 +53,7 @@ public class UserServiceTest {
         String userName = "userName";
         String password = "password";
 
-        UserEntity fixture = UserEntityFixture.get(userName, password);
+        UserEntity fixture = UserEntityFixture.get(userName, password, 1);
 
         // mocking
         // findByUserName을 하면 이미 가입된 User의 UserEntity가 반환되어야 한다.
@@ -71,7 +71,7 @@ public class UserServiceTest {
         String userName = "userName";
         String password = "password";
 
-        UserEntity fixture = UserEntityFixture.get(userName, password);
+        UserEntity fixture = UserEntityFixture.get(userName, password, 1);
 
         // mocking
         when(userEntityRepository.findByUserName(userName)).thenReturn(Optional.of(fixture));
@@ -85,7 +85,7 @@ public class UserServiceTest {
         String userName = "userName";
         String password = "password";
 
-        UserEntity fixture = UserEntityFixture.get(userName, password);
+        UserEntity fixture = UserEntityFixture.get(userName, password, 1);
 
         // mocking
         when(userEntityRepository.findByUserName(userName)).thenReturn(Optional.empty());
@@ -101,7 +101,7 @@ public class UserServiceTest {
         String password = "password";
         String wrongPassword = "wrongPassword";
 
-        UserEntity fixture = UserEntityFixture.get(userName, password);
+        UserEntity fixture = UserEntityFixture.get(userName, password, 1);
 
         // mocking
         when(userEntityRepository.findByUserName(userName)).thenReturn(Optional.of(fixture));

@@ -114,7 +114,7 @@ public class PostServiceTest {
 
         PostEntity postEntity = PostEntityFixture.get(userName, postId);
         UserEntity userEntity = postEntity.getUser(); // postEntity의 post를 작성한 실제 작성자 UserEntity
-        UserEntity writer = UserEntityFixture.get("userName1", "aaa");
+        UserEntity writer = UserEntityFixture.get("userName1", "aaa", 2);
 
         // 포스트를 작성하지 않은 유저를 찾음, 해당 유저는 존재하긴 해야 함 // 확인 필요
         when(userEntityRepository.findByUserName("userName1")).thenReturn(Optional.of(writer));
