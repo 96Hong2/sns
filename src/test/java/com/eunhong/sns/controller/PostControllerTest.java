@@ -4,6 +4,8 @@ import com.eunhong.sns.controller.request.PostCreateRequest;
 import com.eunhong.sns.controller.request.PostModifyRequest;
 import com.eunhong.sns.exception.ErrorCode;
 import com.eunhong.sns.exception.SnsApplicationException;
+import com.eunhong.sns.fixture.PostEntityFixture;
+import com.eunhong.sns.model.Post;
 import com.eunhong.sns.service.PostService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -19,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -70,6 +73,10 @@ public class PostControllerTest {
 
         String title = "title";
         String body = "body";
+
+        // mocking을 해줘서 포스트를 반환하는지 먼저 확인한다.
+        when(postService.modify(eq(title), eq(body), any(), any()))
+                .thenReturn(Post.fromEntity(PostEntityFixture.get("userName", 1, 1)));
 
         mockMvc.perform(put("/api/v1/posts/1") // posts 다음에 수정할 포스트의 아이디를 넣었음
                         .contentType(MediaType.APPLICATION_JSON)

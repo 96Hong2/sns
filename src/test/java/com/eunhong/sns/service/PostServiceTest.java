@@ -73,13 +73,15 @@ public class PostServiceTest {
         Integer postId = 1;
 
         // PostEntity를 Fixture로 작성함으로써 포스트를 작성한(연관이 있는) 유저도 꺼내서 사용할 수 있다.
-        PostEntity postEntity = PostEntityFixture.get(userName, postId);
+        PostEntity postEntity = PostEntityFixture.get(userName, postId, 1);
         UserEntity userEntity = postEntity.getUser();
 
         // 포스트를 작성한 유저가 존재해야 함
         when(userEntityRepository.findByUserName(userName)).thenReturn(Optional.of(userEntity));
         // 해당 포스트 아이디의 포스트엔티티가 존재해야 함
         when(postEntityRepository.findById(postId)).thenReturn(Optional.of(postEntity));
+        // 수정한 포스트 저장하는 Mocking
+        when(postEntityRepository.saveAndFlush(any())).thenReturn(postEntity);
 
         // 아무 에러도 throw하지 않는지 검증
         Assertions.assertDoesNotThrow(() -> postService.modify(title, body, userName, postId));
@@ -92,7 +94,7 @@ public class PostServiceTest {
         String userName = "userName";
         Integer postId = 1;
 
-        PostEntity postEntity = PostEntityFixture.get(userName, postId);
+        PostEntity postEntity = PostEntityFixture.get(userName, postId, 1);
         UserEntity userEntity = postEntity.getUser();
 
         // 포스트를 작성한 유저가 존재해야 함
@@ -112,12 +114,11 @@ public class PostServiceTest {
         String userName = "userName";
         Integer postId = 1;
 
-        PostEntity postEntity = PostEntityFixture.get(userName, postId);
-        UserEntity userEntity = postEntity.getUser(); // postEntity의 post를 작성한 실제 작성자 UserEntity
-        UserEntity writer = UserEntityFixture.get("userName1", "aaa", 2);
+        PostEntity postEntity = PostEntityFixture.get(userName, postId, 1);
+        UserEntity writer = UserEntityFixture.get("userName1", "test", 2);
 
-        // 포스트를 작성하지 않은 유저를 찾음, 해당 유저는 존재하긴 해야 함 // 확인 필요
-        when(userEntityRepository.findByUserName("userName1")).thenReturn(Optional.of(writer));
+        // 포스트를 작성하지 않은 유저를 찾음, 해당 유저는 존재하긴 해야 함
+        when(userEntityRepository.findByUserName(userName)).thenReturn(Optional.of(writer));
         // 해당 포스트 아이디의 포스트엔티티가 존재해야 함
         when(postEntityRepository.findById(postId)).thenReturn(Optional.of(postEntity));
 
