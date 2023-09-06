@@ -50,6 +50,7 @@ public class PostService {
         postEntity.setBody(body);
 
         // 수정한 포스트 반환
-        return Post.fromEntity(postEntityRepository.saveAndFlush(postEntity));
+        Post post = Post.fromEntity(postEntityRepository.saveAndFlush(postEntity));
+        return post;
     }
 }

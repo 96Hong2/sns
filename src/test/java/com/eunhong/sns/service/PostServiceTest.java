@@ -49,7 +49,7 @@ public class PostServiceTest {
     }
 
    @Test
-    void 포스트작성시_요청한유저가_존재하지않는경우() { // 포스트 작성 시 유저가 존재하지 않는 경우
+    void 포스트작성시_요청한유저가_존재하지않는경우() {
        String title = "title";
        String body = "body";
        String userName = "userName";
