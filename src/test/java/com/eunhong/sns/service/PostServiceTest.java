@@ -117,13 +117,67 @@ public class PostServiceTest {
         PostEntity postEntity = PostEntityFixture.get(userName, postId, 1);
         UserEntity writer = UserEntityFixture.get("userName1", "test", 2);
 
-        // 포스트를 작성하지 않은 유저를 찾음, 해당 유저는 존재하긴 해야 함
+        // mocking : userName으로 유저를 찾았을 때 포스트를 작성하지 않은 유저인 writer가 반환되도록 모킹
         when(userEntityRepository.findByUserName(userName)).thenReturn(Optional.of(writer));
-        // 해당 포스트 아이디의 포스트엔티티가 존재해야 함
+        // mocking : 해당 포스트 아이디의 포스트엔티티가 존재해야 함
         when(postEntityRepository.findById(postId)).thenReturn(Optional.of(postEntity));
 
         // INVALID_PERMISSION 에러를 throw해야 함
         SnsApplicationException e = Assertions.assertThrows(SnsApplicationException.class, () -> postService.modify(title, body, userName, postId));
+        Assertions.assertEquals(ErrorCode.INVALID_PERMISSION, e.getErrorCode());
+    }
+
+    @Test
+    void 포스트삭제가_성공한경우() {
+        String userName = "userName";
+        Integer postId = 1;
+
+        // PostEntity를 Fixture로 작성함으로써 포스트를 작성한(연관이 있는) 유저도 꺼내서 사용할 수 있다.
+        PostEntity postEntity = PostEntityFixture.get(userName, postId, 1);
+        UserEntity userEntity = postEntity.getUser();
+
+        // mocking : 포스트를 작성한 유저가 존재해야 함
+        when(userEntityRepository.findByUserName(userName)).thenReturn(Optional.of(userEntity));
+        // mocking : 해당 포스트 아이디의 포스트엔티티가 존재해야 함
+        when(postEntityRepository.findById(postId)).thenReturn(Optional.of(postEntity));
+
+        // 아무 에러도 throw하지 않는지 검증
+        Assertions.assertDoesNotThrow(() -> postService.delete(userName, postId));
+    }
+
+    @Test
+    void 포스트삭제시_포스트가_존재하지않는_경우() {
+        String userName = "userName";
+        Integer postId = 1;
+
+        PostEntity postEntity = PostEntityFixture.get(userName, postId, 1);
+        UserEntity userEntity = postEntity.getUser();
+
+        // mocking : 포스트를 작성한 유저가 존재해야 함
+        when(userEntityRepository.findByUserName(userName)).thenReturn(Optional.of(userEntity));
+        // mocking : 해당 포스트 아이디의 포스트엔티티는 없어야 함
+        when(postEntityRepository.findById(postId)).thenReturn(Optional.empty());
+
+        // POST_NOT_FOUND 에러를 throw해야 함
+        SnsApplicationException e = Assertions.assertThrows(SnsApplicationException.class, () -> postService.delete(userName, postId));
+        Assertions.assertEquals(ErrorCode.POST_NOT_FOUND, e.getErrorCode());
+    }
+
+    @Test
+    void 포스트삭제시_권한이_없는_경우() {
+        String userName = "userName";
+        Integer postId = 1;
+
+        PostEntity postEntity = PostEntityFixture.get(userName, postId, 1);
+        UserEntity writer = UserEntityFixture.get("userName1", "test", 2);
+
+        // mocking : userName으로 유저를 찾았을 때 포스트를 작성하지 않은 유저인 writer가 반환되도록 모킹
+        when(userEntityRepository.findByUserName(userName)).thenReturn(Optional.of(writer));
+        // mocking : 해당 포스트 아이디의 포스트엔티티가 존재해야 함
+        when(postEntityRepository.findById(postId)).thenReturn(Optional.of(postEntity));
+
+        // INVALID_PERMISSION 에러를 throw해야 함
+        SnsApplicationException e = Assertions.assertThrows(SnsApplicationException.class, () -> postService.delete(userName, postId));
         Assertions.assertEquals(ErrorCode.INVALID_PERMISSION, e.getErrorCode());
     }
 }

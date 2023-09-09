@@ -53,4 +53,22 @@ public class PostService {
         Post post = Post.fromEntity(postEntityRepository.saveAndFlush(postEntity));
         return post;
     }
+
+    @Transactional
+    public void delete(String userName, Integer postId) {
+        // user find 포스트를 삭제할 유저 받아옴, 실제로 존재하지 않으면 Exception Throw
+        UserEntity userEntity = userEntityRepository.findByUserName(userName).orElseThrow(()
+                -> new SnsApplicationException(ErrorCode.USER_NOT_FOUND, String.format("%s is not found", userName)));
+
+        // post exist 삭제할 포스트 받아옴, 포스트가 실제로 존재하지 않으면 Exception Throw
+        PostEntity postEntity = postEntityRepository.findById(postId).orElseThrow(()
+                -> new SnsApplicationException(ErrorCode.POST_NOT_FOUND, String.format("$s is not found", postId)));
+
+        // post permission 포스트를 작성한 사람이 삭제하려하는지 확인
+        if(postEntity.getUser() != userEntity) {
+            throw new SnsApplicationException(ErrorCode.INVALID_PERMISSION, String.format("%s has no permission with %s", userName, postId));
+        }
+
+        postEntityRepository.delete(postEntity);
+    }
 }

@@ -22,8 +22,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -74,7 +73,7 @@ public class PostControllerTest {
         String title = "title";
         String body = "body";
 
-        // mocking을 해줘서 포스트를 반환하는지 먼저 확인한다.
+        // mocking을 해줘서 modify시 포스트를 반환하도록 mocking
         when(postService.modify(eq(title), eq(body), any(), any()))
                 .thenReturn(Post.fromEntity(PostEntityFixture.get("userName", 1, 1)));
 
@@ -107,7 +106,7 @@ public class PostControllerTest {
         String body = "body";
 
         // any()를 썼기 때문에 eq로 감쌈
-        // modify를 했을 때 INVALID_PERMISSION 에러를 발생시키는지 확인
+        // modify를 했을 때 INVALID_PERMISSION 에러를 발생시키도록 mocking
         doThrow(new SnsApplicationException(ErrorCode.INVALID_PERMISSION)).when(postService).modify(eq(title), eq(body), any(), eq(1));
 
         mockMvc.perform(put("/api/v1/posts/1")
@@ -124,12 +123,56 @@ public class PostControllerTest {
         String title = "title";
         String body = "body";
 
-        // modify를 했을 때 POST_NOT_FOUND 에러를 발생시키는지 확인
+        // modify를 했을 때 POST_NOT_FOUND 에러를 발생시키도록 하는 상황을 가정하여 mocking
         doThrow(new SnsApplicationException(ErrorCode.POST_NOT_FOUND)).when(postService).modify(eq(title), eq(body), any(), eq(1));
 
         mockMvc.perform(put("/api/v1/posts/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsBytes(new PostModifyRequest(title, body)))
+                ).andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser // 포스트 삭제 시 인증된 유저가 작성한 것을 표현
+    void 포스트삭제() throws Exception { // 포스트 삭제가 성공한 경우
+        mockMvc.perform(delete("/api/v1/posts/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                ).andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithAnonymousUser
+    void 포스트삭제시_로그인하지_않은경우() throws Exception {
+        mockMvc.perform(delete("/api/v1/posts/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                ).andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser
+    void 포스트삭제시_작성자와_삭제요청자가_다를_경우() throws Exception {
+        // mocking
+        // delete메서드의 반환타입이 void이기 때문에 doThrow를 하고 나서 when을 해준다.
+        // delete 작업을 수행했을 때 INVALID_PERMISSION 에러가 떨어지도록 mocking
+        doThrow(new SnsApplicationException(ErrorCode.INVALID_PERMISSION)).when(postService).delete(any(), any());
+
+        mockMvc.perform(delete("/api/v1/posts/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                ).andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser
+    void 포스트삭제시_삭제하려는_포스트가_존재하지_않을_경우() throws Exception {
+        // mocking
+        doThrow(new SnsApplicationException(ErrorCode.POST_NOT_FOUND)).when(postService).delete(any(), any());
+
+        mockMvc.perform(delete("/api/v1/posts/1")
+                        .contentType(MediaType.APPLICATION_JSON)
                 ).andDo(print())
                 .andExpect(status().isNotFound());
     }
