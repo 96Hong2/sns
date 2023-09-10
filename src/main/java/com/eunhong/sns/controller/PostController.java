@@ -28,4 +28,10 @@ public class PostController {
         Post post = postService.modify(request.getTitle(), request.getBody(), authentication.getName(), postId); // authentication의 Principal에서 name을 가져옴
         return Response.success(PostResponse.fromPost(post));
     }
+
+    @DeleteMapping("/{postId}")
+    public Response<Void> delete(@PathVariable Integer postId, Authentication authentication) {
+        postService.delete(authentication.getName(), postId);
+        return Response.success();
+    }
 }
