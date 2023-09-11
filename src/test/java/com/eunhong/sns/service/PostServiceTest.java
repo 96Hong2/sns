@@ -14,6 +14,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.Optional;
 
@@ -179,5 +181,29 @@ public class PostServiceTest {
         // INVALID_PERMISSION 에러를 throw해야 함
         SnsApplicationException e = Assertions.assertThrows(SnsApplicationException.class, () -> postService.delete(userName, postId));
         Assertions.assertEquals(ErrorCode.INVALID_PERMISSION, e.getErrorCode());
+    }
+
+    @Test
+    void 피드목록요청이_성공한경우() {
+        // Pageable 클래스의 mock 생성
+        Pageable pageable = mock(Pageable.class);
+
+        // mocking : 피드목록을 페이징 범위만큼 가져오면, 빈 페이지 리턴
+        when(postEntityRepository.findAll(pageable)).thenReturn(Page.empty());
+
+        // 아무 에러도 throw하지 않는지 검증
+        Assertions.assertDoesNotThrow(() -> postService.list(pageable));
+    }
+
+    @Test
+    void 내피드목록요청이_성공한경우() {
+        // Pageable 클래스의 mock 생성
+        Pageable pageable = mock(Pageable.class);
+
+        // mocking : 내피드목록을 페이징 범위만큼 가져오면, 빈 페이지 리턴
+        when(postEntityRepository.findAllByUser(any(), pageable)).thenReturn(Page.empty());
+
+        // 아무 에러도 throw하지 않는지 검증
+        Assertions.assertDoesNotThrow(() -> postService.my("", pageable));
     }
 }

@@ -7,6 +7,8 @@ import com.eunhong.sns.controller.response.Response;
 import com.eunhong.sns.model.Post;
 import com.eunhong.sns.service.PostService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,5 +35,17 @@ public class PostController {
     public Response<Void> delete(@PathVariable Integer postId, Authentication authentication) {
         postService.delete(authentication.getName(), postId);
         return Response.success();
+    }
+
+    @GetMapping
+    public Response<Page<PostResponse>> list(Pageable pageable, Authentication authentication) { // Pageable은 페이징 기능을 가지는 인터페이스
+        // 포스트 목록을 페이징 범위만큼 조회해서 가져온 Post들을 PostResponse로 매핑한 결과를 success에서 반환
+        return Response.success(postService.list(pageable).map(PostResponse::fromPost));
+    }
+
+    @GetMapping("/my")
+    public Response<Page<PostResponse>> my(Pageable pageable, Authentication authentication) {
+        // 자신이 작성한 포스트 리스트를 페이징하여 조회해옴
+        return Response.success(postService.my(authentication.getName(), pageable).map(PostResponse::fromPost));
     }
 }

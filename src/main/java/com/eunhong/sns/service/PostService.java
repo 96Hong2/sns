@@ -8,6 +8,8 @@ import com.eunhong.sns.model.entity.UserEntity;
 import com.eunhong.sns.repository.PostEntityRepository;
 import com.eunhong.sns.repository.UserEntityRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -70,5 +72,18 @@ public class PostService {
         }
 
         postEntityRepository.delete(postEntity);
+    }
+
+    public Page<Post> list(Pageable pageable) { // 피드 목록 조회, Post들로 이루어진 페이지 객체를 반환한다.
+        // pageable을 적용하여 FindAll로 페이지 범위 피드 목록의 포스트 페이지들을 가져옴
+        return postEntityRepository.findAll(pageable).map(Post::fromEntity);
+    }
+
+    public Page<Post> my(String userName, Pageable pageable) { // 내가 작성한 피드 목록을 가져옴
+        // 요청하는 유저의 유저엔티티를 받아옴, 유저가 존재하지 않으면 Error Throw
+        UserEntity userEntity = userEntityRepository.findByUserName(userName).orElseThrow(()
+                -> new SnsApplicationException(ErrorCode.USER_NOT_FOUND, String.format("%s is not found", userName)));
+
+        return postEntityRepository.findAllByUser(userEntity, pageable).map(Post::fromEntity);
     }
 }
