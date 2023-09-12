@@ -197,11 +197,14 @@ public class PostServiceTest {
 
     @Test
     void 내피드목록요청이_성공한경우() {
-        // Pageable 클래스의 mock 생성
+        // mock 생성
         Pageable pageable = mock(Pageable.class);
+        UserEntity user = mock(UserEntity.class);
 
+        // mocking : userEntityRepository에서 어떤 유저를 찾으면, mock user를 반환함
+        when(userEntityRepository.findByUserName(any())).thenReturn(Optional.of(user));
         // mocking : 내피드목록을 페이징 범위만큼 가져오면, 빈 페이지 리턴
-        when(postEntityRepository.findAllByUser(any(), pageable)).thenReturn(Page.empty());
+        when(postEntityRepository.findAllByUser(user, pageable)).thenReturn(Page.empty());
 
         // 아무 에러도 throw하지 않는지 검증
         Assertions.assertDoesNotThrow(() -> postService.my("", pageable));
