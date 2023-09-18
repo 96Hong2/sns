@@ -3,8 +3,10 @@ package com.eunhong.sns.service;
 import com.eunhong.sns.exception.ErrorCode;
 import com.eunhong.sns.exception.SnsApplicationException;
 import com.eunhong.sns.model.Post;
+import com.eunhong.sns.model.entity.LikeEntity;
 import com.eunhong.sns.model.entity.PostEntity;
 import com.eunhong.sns.model.entity.UserEntity;
+import com.eunhong.sns.repository.LikeEntityRepository;
 import com.eunhong.sns.repository.PostEntityRepository;
 import com.eunhong.sns.repository.UserEntityRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,7 @@ public class PostService {
 
     private final PostEntityRepository postEntityRepository;
     private final UserEntityRepository userEntityRepository;
+    private final LikeEntityRepository likeEntityRepository;
 
     @Transactional
     public void create(String title, String body, String userName) {
@@ -89,6 +92,20 @@ public class PostService {
 
     @Transactional
     public void like(Integer postId, String userName) {
+        // post exist
+        PostEntity postEntity = postEntityRepository.findById(postId).orElseThrow(()
+                -> new SnsApplicationException(ErrorCode.POST_NOT_FOUND, String.format("$s is not found", postId)));
 
+        UserEntity userEntity = userEntityRepository.findByUserName(userName).orElseThrow(()
+                -> new SnsApplicationException(ErrorCode.USER_NOT_FOUND, String.format("%s is not found", userName)));
+
+        // check liked -> throw
+        // like는 유저 당 한 번만 누를 수 있다. 해당 유저가 이미 like를 누른 적 있는 지 체크
+        likeEntityRepository.findByUserAndPost(userEntity, postEntity).ifPresent(it -> {
+            throw new SnsApplicationException(ErrorCode.ALREADY_LIKED, String.format("userName %s already like post %d", userName, postId));
+        });
+
+        // like save
+        likeEntityRepository.save(LikeEntity.of(userEntity, postEntity));
     }
 }

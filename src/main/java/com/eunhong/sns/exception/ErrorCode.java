@@ -14,8 +14,10 @@ public enum ErrorCode {
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "Token is invalid"), // 토큰이 유효하지 않음
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "Post not founded"), // 포스트 수정 시 포스트를 찾을 수 없는 경우
     INVALID_PERMISSION(HttpStatus.UNAUTHORIZED, "Permission is invalid"), // 포스트 수정 시 작성자가 아닌 경우
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error"), // 내부 서버 에러
+    DATABASE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Error occurs in database"), // DB에러
+    ALREADY_LIKED(HttpStatus.CONFLICT, "User already liked the post") // 해당 유저가 이미 좋아요한 게시물
 
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error"),
     ;
 
     // enum 의 각 필드 (status, message)

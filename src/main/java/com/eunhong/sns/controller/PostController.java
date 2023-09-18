@@ -48,4 +48,10 @@ public class PostController {
         // 자신이 작성한 포스트 리스트를 페이징하여 조회해옴
         return Response.success(postService.my(authentication.getName(), pageable).map(PostResponse::fromPost));
     }
+
+    @PostMapping("{postId}/likes")
+    public Response<Void> like(@PathVariable Integer postId, Authentication authentication) {
+        postService.like(postId, authentication.getName());
+        return Response.success();
+    }
 }
