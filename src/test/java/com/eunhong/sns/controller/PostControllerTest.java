@@ -281,7 +281,7 @@ public class PostControllerTest {
     @WithMockUser
     void 댓글작성시_게시물이_없는경우() throws Exception {
         // mocking : postService의 comment를 실행했을 때 POST_NOT_FOUND 에러를 던지도록 모킹
-        doThrow(new SnsApplicationException(ErrorCode.POST_NOT_FOUND)).when(postService).comment(any(), any());
+        doThrow(new SnsApplicationException(ErrorCode.POST_NOT_FOUND)).when(postService).comment(any(), any(), any());
 
         mockMvc.perform(post("/api/v1/posts/1/comments")
                         .contentType(MediaType.APPLICATION_JSON)

@@ -1,5 +1,6 @@
 package com.eunhong.sns.controller;
 
+import com.eunhong.sns.controller.request.PostCommentRequest;
 import com.eunhong.sns.controller.request.PostCreateRequest;
 import com.eunhong.sns.controller.request.PostModifyRequest;
 import com.eunhong.sns.controller.response.PostResponse;
@@ -58,5 +59,11 @@ public class PostController {
     @GetMapping("{postId}/likes")
     public Response<Integer> likeCount(@PathVariable Integer postId) {
         return Response.success(postService.likeCount(postId));
+    }
+
+    @PostMapping("{postId}/comments")
+    public Response<Void> comment(@PathVariable Integer postId, @RequestBody PostCommentRequest request, Authentication authentication) {
+        postService.comment(postId, authentication.getName(), request.getComment());
+        return Response.success();
     }
 }
