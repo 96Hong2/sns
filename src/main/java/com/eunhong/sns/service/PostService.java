@@ -2,6 +2,7 @@ package com.eunhong.sns.service;
 
 import com.eunhong.sns.exception.ErrorCode;
 import com.eunhong.sns.exception.SnsApplicationException;
+import com.eunhong.sns.model.Comment;
 import com.eunhong.sns.model.Post;
 import com.eunhong.sns.model.entity.CommentEntity;
 import com.eunhong.sns.model.entity.LikeEntity;
@@ -111,6 +112,11 @@ public class PostService {
 
         // comment save
         commentEntityRepository.save(CommentEntity.of(userEntity, postEntity, comment));
+    }
+
+    public Page<Comment> getComments(Integer postId, Pageable pageable) {
+        PostEntity postEntity = getPostEntityOrException(postId);
+        return commentEntityRepository.findAllByPost(postEntity, pageable).map(Comment::fromEntity);
     }
 
     // post exist

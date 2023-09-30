@@ -3,6 +3,7 @@ package com.eunhong.sns.controller;
 import com.eunhong.sns.controller.request.PostCommentRequest;
 import com.eunhong.sns.controller.request.PostCreateRequest;
 import com.eunhong.sns.controller.request.PostModifyRequest;
+import com.eunhong.sns.controller.response.CommentResponse;
 import com.eunhong.sns.controller.response.PostResponse;
 import com.eunhong.sns.controller.response.Response;
 import com.eunhong.sns.model.Post;
@@ -65,5 +66,10 @@ public class PostController {
     public Response<Void> comment(@PathVariable Integer postId, @RequestBody PostCommentRequest request, Authentication authentication) {
         postService.comment(postId, authentication.getName(), request.getComment());
         return Response.success();
+    }
+
+    @GetMapping("{postId}/comments")
+    public Response<Page<CommentResponse>> comment(@PathVariable Integer postId, Pageable pageable, Authentication authentication) {
+        return Response.success(postService.getComments(postId, pageable).map(CommentResponse::fromComment));
     }
 }
