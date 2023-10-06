@@ -2,12 +2,16 @@ package com.eunhong.sns.service;
 
 import com.eunhong.sns.exception.ErrorCode;
 import com.eunhong.sns.exception.SnsApplicationException;
+import com.eunhong.sns.model.Alarm;
 import com.eunhong.sns.model.User;
 import com.eunhong.sns.model.entity.UserEntity;
+import com.eunhong.sns.repository.AlarmEntityRepository;
 import com.eunhong.sns.repository.UserEntityRepository;
 import com.eunhong.sns.util.JwtTokenUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserEntityRepository userEntityRepository;
+    private final AlarmEntityRepository alarmEntityRepository;
     private final BCryptPasswordEncoder encoder;
 
     // configuration(application.yaml)에서 값을 받아옴
@@ -62,5 +67,12 @@ public class UserService {
         String token = JwtTokenUtils.generateToken(userName, secretKey, expiredTimeMs);
 
         return token;
+    }
+
+    public Page<Alarm> alarmList(String userName, Pageable pageable) {
+        // user exist
+        UserEntity userEntity = userEntityRepository.findByUserName(userName).orElseThrow(() -> new SnsApplicationException(ErrorCode.USER_NOT_FOUND, String.format("%s not founded", userName)));
+
+        return alarmEntityRepository.findAllByUser(userEntity, pageable).map(Alarm::fromEntity);
     }
 }

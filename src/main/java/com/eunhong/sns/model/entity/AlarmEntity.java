@@ -15,7 +15,9 @@ import java.sql.Timestamp;
 import java.time.Instant;
 
 @Entity
-@Table(name = "\"alarm\"")
+@Table(name = "\"alarm\"", indexes = { // userId로 인덱스 걸어줌
+        @Index(name = "user_id_idx", columnList = "user_id")
+})
 @Getter
 @Setter
 @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
