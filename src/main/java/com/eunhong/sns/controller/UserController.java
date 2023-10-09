@@ -6,8 +6,11 @@ import com.eunhong.sns.controller.response.AlarmResponse;
 import com.eunhong.sns.controller.response.Response;
 import com.eunhong.sns.controller.response.UserJoinResponse;
 import com.eunhong.sns.controller.response.UserLoginResponse;
+import com.eunhong.sns.exception.ErrorCode;
+import com.eunhong.sns.exception.SnsApplicationException;
 import com.eunhong.sns.model.User;
 import com.eunhong.sns.service.UserService;
+import com.eunhong.sns.util.ClassUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,6 +38,9 @@ public class UserController {
 
     @GetMapping("/alarm")
     public Response<Page<AlarmResponse>> alarm(Pageable pageable, Authentication authentication) {
-        return Response.success(userService.alarmList(authentication.getName(), pageable).map(AlarmResponse::fromAlarm));
+        // 유저의 중복 인증 체크를 피하기 위해 authentication에서 유저를 가져온다.
+        User user = ClassUtils.getSafeCastInstance(authentication.getPrincipal(), User.class) // safe casting
+                .orElseThrow(() -> new SnsApplicationException(ErrorCode.INTERNAL_SERVER_ERROR, "Casting to User Class failed."));
+        return Response.success(userService.alarmList(user.getId(), pageable).map(AlarmResponse::fromAlarm));
     }
 }
