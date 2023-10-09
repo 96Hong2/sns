@@ -22,6 +22,10 @@ public interface LikeEntityRepository extends JpaRepository<LikeEntity, Integer>
     // 해당 게시물에 존재하는 like의 개수를 가져옴
     // 쿼리 사용 : like 테이블을 LikeEntity로 사용하고 있으므로 그 객체를 from에 넣고,
     // 해당 entity의 post가 파라미터로 받은 post와 같은 것의 개수를 반환함
-    @Query(value = "SELECT COUNT(*) FROM LikeEntity entity WHERE entity.post =:post")
-    Integer countByPost(@Param("post") PostEntity post);
+    // @Query(value = "SELECT COUNT(*) FROM LikeEntity entity WHERE entity.post =:post")
+    // Integer countByPost(@Param("post") PostEntity post);
+
+    // 위 쿼리 간단하게 작성 : JPA에서 CountBy000 에 대한 쿼리 자동으로 생성해주는 기능 이용
+    long countByPost(PostEntity post);
+
 }

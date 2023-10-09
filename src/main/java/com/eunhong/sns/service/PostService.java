@@ -97,7 +97,7 @@ public class PostService {
     }
 
     @Transactional
-    public int likeCount(Integer postId) { // 해당 게시물에 like가 몇 개 있는지 반환
+    public long likeCount(Integer postId) { // 해당 게시물에 like가 몇 개 있는지 반환
         PostEntity postEntity = getPostEntityOrException(postId);
 
         // List<LikeEntity> likeEntities = likeEntityRepository.findAllByPost(postEntity);
