@@ -4,9 +4,11 @@ import com.eunhong.sns.model.entity.LikeEntity;
 import com.eunhong.sns.model.entity.PostEntity;
 import com.eunhong.sns.model.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -28,4 +30,8 @@ public interface LikeEntityRepository extends JpaRepository<LikeEntity, Integer>
     // 위 쿼리 간단하게 작성 : JPA에서 CountBy000 에 대한 쿼리 자동으로 생성해주는 기능 이용
     long countByPost(PostEntity post);
 
+    @Transactional
+    @Modifying
+    @Query("UPDATE LikeEntity entity SET deleted_at = NOW() where entity.post = :post")
+    void deleteAllByPost(@Param("post") PostEntity postEntity);
 }
