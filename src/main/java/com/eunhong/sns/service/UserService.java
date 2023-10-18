@@ -6,6 +6,7 @@ import com.eunhong.sns.model.Alarm;
 import com.eunhong.sns.model.User;
 import com.eunhong.sns.model.entity.UserEntity;
 import com.eunhong.sns.repository.AlarmEntityRepository;
+import com.eunhong.sns.repository.UserCacheRepository;
 import com.eunhong.sns.repository.UserEntityRepository;
 import com.eunhong.sns.util.JwtTokenUtils;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ public class UserService {
     private final UserEntityRepository userEntityRepository;
     private final AlarmEntityRepository alarmEntityRepository;
     private final BCryptPasswordEncoder encoder;
+    private final UserCacheRepository userCacheRepository;
 
     // configuration(application.yaml)에서 값을 받아옴
     @Value("${jwt.secret-key}")
@@ -32,10 +34,13 @@ public class UserService {
     private Long expiredTimeMs;
 
     public User loadUserByUserName(String userName) {
-        // findByUserName으로 찾은 UserEntity객체를 User 객체로 반환해야 함
-        // User클래스의 메서드 fromEntity의 파라미터로 적용하기 위해 map(User::fromEntity) 사용
-        return userEntityRepository.findByUserName(userName).map(User::fromEntity).orElseThrow(() ->
-                new SnsApplicationException(ErrorCode.USER_NOT_FOUND, String.format("%s is not founded.", userName)));
+        // Redis에서 캐싱된 유저를 먼저 가져오고, 없을 경우 아래와 같이 DB에서 가져옴
+        return userCacheRepository.getUser(userName).orElseGet(() ->
+            // findByUserName으로 찾은 UserEntity객체를 User 객체로 반환해야 함
+            // User클래스의 메서드 fromEntity의 파라미터로 적용하기 위해 map(User::fromEntity) 사용
+            userEntityRepository.findByUserName(userName).map(User::fromEntity).orElseThrow(() ->
+                    new SnsApplicationException(ErrorCode.USER_NOT_FOUND, String.format("%s is not founded.", userName)))
+        );
     }
 
     @Transactional
@@ -54,11 +59,13 @@ public class UserService {
     // jwt는 문자열 암호화 인가 방식, 로그인에 사용할 암호화된 문자열 반환
     // 로그인 성공 시 토큰 반환
     public String login(String userName, String password) throws SnsApplicationException { // 이거 throws부분은 추가함
-        // 회원가입 여부 체크 (가입된 유저가 없다면, Throw Error)
-        UserEntity userEntity = userEntityRepository.findByUserName(userName).orElseThrow(() -> new SnsApplicationException(ErrorCode.USER_NOT_FOUND, String.format("%s not founded", userName)));
+        // 회원가입 여부 체크
+        User user = loadUserByUserName(userName);
+        // 로그인 시점에 캐시에 User 올리기
+        userCacheRepository.setUser(user);
 
         // 비밀번호 체크
-        if(!encoder.matches(password, userEntity.getPassword())){
+        if(!encoder.matches(password, user.getPassword())){
         // if(userEntity.getPassword().equals(password)){
             throw new SnsApplicationException(ErrorCode.INVALID_PASSWORD);
         }
