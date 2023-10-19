@@ -19,18 +19,18 @@ public class UserCacheRepository { //Redis에 유저를 캐싱하고 가져오�
 
     public void setUser(User user) { // User를 캐시에 세팅
         String key = getKey(user.getUsername());
-        log.info("Set User to Redis {}:{}", key, user);
+        log.info("Set User to Redis {} , {}", key, user);
         userRedisTemplate.opsForValue().set(key, user, USER_CACHE_TTL); // key, value
     }
 
     public Optional<User> getUser(String userName) {
         String key = getKey(userName);
         User user = userRedisTemplate.opsForValue().get(key);
-        log.info("Get data from Redis {}:{}", key, user);
+        log.info("Get data from Redis {} , {}", key, user);
         return Optional.ofNullable(user);
     }
 
     private String getKey(String userName) { // JwtTokenFilter에서 사용하는 키명 userName을 사용
-        return "USER:"+userName; // 다양한 객체의 캐싱을 하게 될 수 있으므로 prefix를 붙여주는 것이 좋다.
+        return "USER:" + userName; // 다양한 객체의 캐싱을 하게 될 수 있으므로 prefix를 붙여주는 것이 좋다.
     }
 }

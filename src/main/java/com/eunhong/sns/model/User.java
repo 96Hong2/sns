@@ -1,9 +1,9 @@
 package com.eunhong.sns.model;
 
 import com.eunhong.sns.model.entity.UserEntity;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,13 +12,14 @@ import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.List;
 
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
+@NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class User implements UserDetails {
 
     private Integer id;
-    private String userName;
+    private String username;
     private String password;
     private UserRole userRole;
     private Timestamp registeredAt;
@@ -39,6 +40,7 @@ public class User implements UserDetails {
     }
 
     @Override
+    @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {
         if(this.getUserRole() == null)
         {
@@ -47,28 +49,28 @@ public class User implements UserDetails {
         return List.of(new SimpleGrantedAuthority(this.getUserRole().toString()));
     }
 
-    @Override
-    public String getUsername() {
-        return this.userName;
-    }
-
     // 아래는 유저가 삭제만 되지 않았다면 다 유효한 것으로 간주
+    // 이 값들은 deletedAt 값만 있으면 모두 구할 수 있는 것으로, 캐싱이 필요없어서 @JsonIgnore를 붙여준다.
     @Override
+    @JsonIgnore
     public boolean isAccountNonExpired() {
         return this.deletedAt == null;
     }
 
     @Override
+    @JsonIgnore
     public boolean isAccountNonLocked() {
         return this.deletedAt == null;
     }
 
     @Override
+    @JsonIgnore
     public boolean isCredentialsNonExpired() {
         return this.deletedAt == null;
     }
 
     @Override
+    @JsonIgnore
     public boolean isEnabled() {
         return this.deletedAt == null;
     }
