@@ -6,6 +6,7 @@ import com.eunhong.sns.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -24,7 +25,8 @@ public class AuthenticationConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(WebSecurity web) throws Exception {
-        web.ignoring().regexMatchers("^(?!/api/).*"); // "/api"로 시작하는 것들만 빼고 ingore
+        web.ignoring().regexMatchers("^(?!/api/).*") // "/api"로 시작하는 것들만 빼고 ingore(나머지는 필터안탐)
+                .antMatchers(HttpMethod.POST, "/api/*/users/join", "/api/*/users/login"); // login, join 빼고 ignore(나머지는 필터안탐)
     }
 
     @Override
@@ -32,7 +34,6 @@ public class AuthenticationConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable()
                 .authorizeRequests()
                 // 회원가입이나 로그인 시에는 인증 없이 어떤 유저든지 허용하도록 함, 버전정보는 *로 설정
-                .antMatchers("/api/*/users/join", "/api/*/users/login").permitAll()
                 .antMatchers("api/**").authenticated() // 그 외는 항상 인증필요
                 .and()
                 // 세션은 따로 관리 안하는 방향
