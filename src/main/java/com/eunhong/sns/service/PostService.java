@@ -23,6 +23,7 @@ public class PostService {
     private final LikeEntityRepository likeEntityRepository;
     private final CommentEntityRepository commentEntityRepository;
     private final AlarmEntityRepository alarmEntityRepository;
+    private final AlarmService alarmService;
 
     @Transactional
     public void create(String title, String body, String userName) {
@@ -95,7 +96,9 @@ public class PostService {
         // like save
         likeEntityRepository.save(LikeEntity.of(userEntity, postEntity));
 
-        alarmEntityRepository.save(AlarmEntity.of(postEntity.getUser(), AlarmType.NEW_LIKE_ON_POST, new AlarmArgs(userEntity.getId(), postEntity.getId())));
+        AlarmEntity alarmEntity = alarmEntityRepository.save(AlarmEntity.of(postEntity.getUser(), AlarmType.NEW_LIKE_ON_POST, new AlarmArgs(userEntity.getId(), postEntity.getId())));
+        // 알림 이벤트 발생 시 구독하는 브라우저에 알려주기
+        alarmService.send(alarmEntity.getId(), alarmEntity.getUser().getId());
     }
 
     @Transactional
@@ -114,7 +117,9 @@ public class PostService {
         // comment save
         commentEntityRepository.save(CommentEntity.of(userEntity, postEntity, comment));
 
-        alarmEntityRepository.save(AlarmEntity.of(postEntity.getUser(), AlarmType.NEW_COMMENT_ON_POST, new AlarmArgs(userEntity.getId(), postEntity.getId())));
+        AlarmEntity alarmEntity = alarmEntityRepository.save(AlarmEntity.of(postEntity.getUser(), AlarmType.NEW_COMMENT_ON_POST, new AlarmArgs(userEntity.getId(), postEntity.getId())));
+        // 알림 이벤트 발생 시 구독하는 브라우저에 알려주기
+        alarmService.send(alarmEntity.getId(), alarmEntity.getUser().getId());
     }
 
     public Page<Comment> getComments(Integer postId, Pageable pageable) {

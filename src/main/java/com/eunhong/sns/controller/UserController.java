@@ -9,6 +9,7 @@ import com.eunhong.sns.controller.response.UserLoginResponse;
 import com.eunhong.sns.exception.ErrorCode;
 import com.eunhong.sns.exception.SnsApplicationException;
 import com.eunhong.sns.model.User;
+import com.eunhong.sns.service.AlarmService;
 import com.eunhong.sns.service.UserService;
 import com.eunhong.sns.util.ClassUtils;
 import lombok.RequiredArgsConstructor;
@@ -16,12 +17,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor // userService가 final로 선언되어있으므로 자동으로 생성자 만들어서 주입받을 수 있게 함
 public class UserController {
     private final UserService userService;
+    private final AlarmService alarmService;
 
     @PostMapping("/join")
     public Response<UserJoinResponse> join(@RequestBody UserJoinRequest request) {
@@ -42,5 +45,14 @@ public class UserController {
         User user = ClassUtils.getSafeCastInstance(authentication.getPrincipal(), User.class) // safe casting
                 .orElseThrow(() -> new SnsApplicationException(ErrorCode.INTERNAL_SERVER_ERROR, "Casting to User Class failed."));
         return Response.success(userService.alarmList(user.getId(), pageable).map(AlarmResponse::fromAlarm));
+    }
+
+    @GetMapping("/alarm/subscribe")
+    public SseEmitter subscribe(Authentication authentication) {
+        // 토큰을 파라미터로 받기 때문에 유저 인증을 따로 해줘야 함
+        User user = ClassUtils.getSafeCastInstance(authentication.getPrincipal(), User.class) // safe casting
+                .orElseThrow(() -> new SnsApplicationException(ErrorCode.INTERNAL_SERVER_ERROR, "Casting to User Class failed."));
+
+        return alarmService.connectAlarm(user.getId());
     }
 }
