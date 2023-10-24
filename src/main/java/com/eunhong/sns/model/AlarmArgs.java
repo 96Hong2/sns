@@ -2,9 +2,11 @@ package com.eunhong.sns.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class AlarmArgs {
     // 어떤 항목(게시물 등)에 대하여, 어떤 유저에 의한 것인지 등 기능 확장을 위한 필드
 

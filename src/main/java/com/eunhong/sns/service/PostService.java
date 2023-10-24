@@ -1,5 +1,6 @@
 package com.eunhong.sns.service;
 
+import com.eunhong.sns.event.AlarmEvent;
 import com.eunhong.sns.exception.ErrorCode;
 import com.eunhong.sns.exception.SnsApplicationException;
 import com.eunhong.sns.model.AlarmArgs;
@@ -7,6 +8,7 @@ import com.eunhong.sns.model.AlarmType;
 import com.eunhong.sns.model.Comment;
 import com.eunhong.sns.model.Post;
 import com.eunhong.sns.model.entity.*;
+import com.eunhong.sns.producer.AlarmProducer;
 import com.eunhong.sns.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,6 +26,7 @@ public class PostService {
     private final CommentEntityRepository commentEntityRepository;
     private final AlarmEntityRepository alarmEntityRepository;
     private final AlarmService alarmService;
+    private final AlarmProducer alarmProducer;
 
     @Transactional
     public void create(String title, String body, String userName) {
@@ -96,9 +99,13 @@ public class PostService {
         // like save
         likeEntityRepository.save(LikeEntity.of(userEntity, postEntity));
 
-        AlarmEntity alarmEntity = alarmEntityRepository.save(AlarmEntity.of(postEntity.getUser(), AlarmType.NEW_LIKE_ON_POST, new AlarmArgs(userEntity.getId(), postEntity.getId())));
-        // 알림 이벤트 발생 시 구독하는 브라우저에 알려주기
-        alarmService.send(alarmEntity.getId(), alarmEntity.getUser().getId());
+        // AlarmEntity alarmEntity = alarmEntityRepository.save(AlarmEntity.of(postEntity.getUser(), AlarmType.NEW_LIKE_ON_POST, new AlarmArgs(userEntity.getId(), postEntity.getId())));
+        // sse : 알림 이벤트 발생 시 구독하는 브라우저에 알려주기
+        // AlarmService.send(alarmEntity.getId(), alarmEntity.getUser().getId());
+
+        // kafka 의 프로듀서를 사용하여 알람 이벤트 send
+        alarmProducer.send(new AlarmEvent(postEntity.getUser().getId(), AlarmType.NEW_LIKE_ON_POST, new AlarmArgs(userEntity.getId(), postEntity.getId())));
+
     }
 
     @Transactional
@@ -117,9 +124,12 @@ public class PostService {
         // comment save
         commentEntityRepository.save(CommentEntity.of(userEntity, postEntity, comment));
 
-        AlarmEntity alarmEntity = alarmEntityRepository.save(AlarmEntity.of(postEntity.getUser(), AlarmType.NEW_COMMENT_ON_POST, new AlarmArgs(userEntity.getId(), postEntity.getId())));
-        // 알림 이벤트 발생 시 구독하는 브라우저에 알려주기
-        alarmService.send(alarmEntity.getId(), alarmEntity.getUser().getId());
+        // AlarmEntity alarmEntity = alarmEntityRepository.save(AlarmEntity.of(postEntity.getUser(), AlarmType.NEW_COMMENT_ON_POST, new AlarmArgs(userEntity.getId(), postEntity.getId())));
+        // SSE : 알림 이벤트 발생 시 구독하는 브라우저에 알려주기
+        // alarmService.send(alarmEntity.getId(), alarmEntity.getUser().getId());
+
+        // kafka 의 프로듀서를 사용하여 알람 이벤트 send
+        alarmProducer.send(new AlarmEvent(postEntity.getUser().getId(), AlarmType.NEW_COMMENT_ON_POST, new AlarmArgs(userEntity.getId(), postEntity.getId())));
     }
 
     public Page<Comment> getComments(Integer postId, Pageable pageable) {
